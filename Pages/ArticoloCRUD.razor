@@ -1,0 +1,105 @@
+﻿@page "/articolo"
+@inject HttpClient Http
+@inject Services.AppData AppData
+
+<h1>Articolo CRUD</h1>
+
+<p>Archivio Articoli</p>
+
+@*@if (ArticoloCollection.Count == 0)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else
+    {*@
+<div>
+    <button class="btn btn-primary" @onclick="StartListArticoli">Lista Articoli</button>
+</div>
+<h4>@Esito</h4>
+<div style="height:20px;">
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>id</th>
+            <th>articolo</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var obj in ArticoloCollection)
+        {
+            <tr>
+                <td>@obj.uid</td>
+                <td>@obj.descrizionereadonly</td>
+            </tr>
+        }
+    </tbody>
+</table>
+@*}*@
+
+@code {
+    private string Esito;
+    private List<Articolo> ArticoloCollection;
+
+
+    private async void StartListArticoli()
+    {
+        var _CurrentPageIndex = 0;
+        var _uidCategoria = Guid.Empty;
+        var _VisualizzaAnnullati = false;
+        var _VisualizzaSoloConGiacenza = false;
+        string _strSearch = string.Empty;
+
+        string url = "https://lab.api.iofatturo.it/Articolo" + "/listPaged/CurrentPageIndex/" + _CurrentPageIndex + "/UidCategoria/" + _uidCategoria
+          + "/VisualizzaAnnullati/" + _VisualizzaAnnullati + "/VisualizzaSoloConGiacenza/" + _VisualizzaSoloConGiacenza + "/strSearch/" + _strSearch + "";
+        Http.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", AppData.Token);
+        //Http.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Authorization", "Bearer " + AppData.Token);
+
+        //Entities.ApiReturnedObj myApiReturnedObj = await Http.GetFromJsonAsync<Entities.ApiReturnedObj>(url);
+        //Console.WriteLine(myJsonStr);
+
+        var r = await Http.GetAsync(url);
+        var myJsonStr = await r.Content.ReadAsStringAsync();
+        Console.WriteLine("myJsonStr=" + myJsonStr);
+
+        var o = Newtonsoft.Json.JsonConvert.DeserializeObject(myJsonStr);
+        //var o = Newtonsoft.Json.Linq.JObject.Parse(myJsonStr);
+        Console.WriteLine("o=" + myJsonStr);
+        Entities.ApiReturnedObj myApiReturnedObj = Newtonsoft.Json.JsonConvert.DeserializeObject<Entities.ApiReturnedObj>(o.ToString());
+
+        if (myApiReturnedObj == null)
+        {
+            Esito = "ops... ApiReturnedObj = null";
+        }
+        else
+        {
+            if (myApiReturnedObj.success)
+            {
+                var _objStr = myApiReturnedObj.obj.ToString();
+                ArticoloCollection = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Articolo>>(_objStr);
+                Esito = "Hai " + ArticoloCollection.Count + " articoli a magazzino";
+            }
+            else
+            {
+                Esito = "ops... ApiReturnedObj = Not Success";
+            }
+        }
+
+        StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        ArticoloCollection = new List<Articolo>();
+        Esito = "clicca per elencare gli articoli a magazzino";
+        await Task.Delay(500);
+    }
+
+    public class Articolo
+    {
+        public Guid uid { get; set; }
+
+        public string descrizionereadonly { get; set; }
+
+    }
+}

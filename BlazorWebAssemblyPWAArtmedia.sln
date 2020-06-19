@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30204.135
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorWebAssemblyPWAArtmedia", "BlazorWebAssemblyPWAArtmedia.csproj", "{A93C5649-E6B8-4ADD-8289-F74B0F6201A4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A93C5649-E6B8-4ADD-8289-F74B0F6201A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A93C5649-E6B8-4ADD-8289-F74B0F6201A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A93C5649-E6B8-4ADD-8289-F74B0F6201A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A93C5649-E6B8-4ADD-8289-F74B0F6201A4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D4452C72-AB6C-461A-ACE5-5AE114BFF88C}
+	EndGlobalSection
+EndGlobal

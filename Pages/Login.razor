@@ -1,0 +1,134 @@
+﻿@page "/login"
+@inject HttpClient Http
+@using System.Text.Json
+@inject Services.AppData myAppData
+
+<h1>login</h1>
+
+<p>inserire le proprie credenziali</p>
+
+<EditForm Model=@myUser OnSubmit=@FormSubmitted>
+    <div class="form-group">
+        <label for="username">username</label>
+        <InputText @bind-Value=myUser.username class="form-control" id="username" />
+    </div>
+    <div class="form-group">
+        <label for="password">password</label>
+        <InputText @bind-Value=myUser.password class="form-control" id="password" />
+    </div>
+    <input type="submit" class="btn btn-primary" value="Login" />
+</EditForm>
+
+<div>
+    hai inserito Username=@myUsername
+    <br />
+    Password=@myPassword
+    <br />
+    esito=@myEsito
+</div>
+
+@code {
+    private user myUser;// = new user();
+    private string myUsername;
+    private string myPassword;
+    private string myEsito;
+
+    protected override async Task OnInitializedAsync()
+    {
+        myUser = new user();
+        myUser.username = "";
+        myUser.password = "";
+        //myEsito = "attesa token...";
+        await Task.Delay(500);
+    }
+
+    //string LastSubmitResult;
+    async void FormSubmitted(EditContext editContext)
+    {
+        //myEsito = "starting...";
+
+        //bool formIsValid = editContext.Validate();
+        //LastSubmitResult = formIsValid ? "Success - form was valid" : "Failure - form was invalid";
+        var obj = (user)editContext.Model;
+        myUsername = obj.username;
+        myPassword = obj.password;
+
+        string url = @"https://lab.api.iofatturo.it" + @"/autenticazione/login/username/" + myUsername + @"/password/" + myPassword;
+        //var R1 = await Http.GetFromJsonAsync<string>(url);
+        var R1 = await Http.GetAsync(url);
+        var myJsonStr = await R1.Content.ReadAsStringAsync();
+
+        Console.WriteLine(myJsonStr);
+        //myEsito = "OKKKKKK; token=" + myJsonStr;
+
+
+        //var options = new JsonSerializerOptions
+        //{
+        //    //PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        //    WriteIndented = true
+        //};
+        //var myApiReturnedObj = JsonSerializer.Deserialize<ApiReturnedObj>(myJsonStr, options);
+        Entities.ApiReturnedObj myApiReturnedObj = Newtonsoft.Json.JsonConvert.DeserializeObject<Entities.ApiReturnedObj>(myJsonStr);
+
+        if (myApiReturnedObj == null)
+        {
+            myEsito = "ops... R=null";
+        }
+        else
+        {
+            if (myApiReturnedObj.success)
+            {
+                //var myApiReturnedObjJson = JsonSerializer.Serialize(myApiReturnedObj.obj, options);
+                //objLoggedIn myObjLoggedIn = JsonSerializer.Deserialize<objLoggedIn>(myApiReturnedObjJson);
+
+                //objLoggedIn myObjLoggedIn = myApiReturnedObj.obj;
+                //string d = myObjLoggedIn.dataorascadenzatoken;
+                //myEsito = myEsito + "OKKKKKK; token=" + myObjLoggedIn.token;
+
+                var _objStr = myApiReturnedObj.obj.ToString();
+                objLoggedIn myObjLoggedIn = Newtonsoft.Json.JsonConvert.DeserializeObject<objLoggedIn>(_objStr);
+
+                Console.WriteLine("ciao neh" + myObjLoggedIn.dataorascadenzatoken);
+                myEsito = myObjLoggedIn.token;
+                myAppData.Token = myObjLoggedIn.token;
+                Console.WriteLine("fine neh" + myObjLoggedIn.username);
+            }
+            else
+            {
+                myEsito = "ops....";
+            }
+        }
+
+        Console.WriteLine("fine!!!!!!!!!!!!!!!!!");
+        myEsito = myEsito + "aaaa";
+
+        StateHasChanged();
+    }
+
+    public class user
+    {
+        public string username { get; set; }
+        public string password { get; set; }
+    }
+    //public class ApiReturnedObj
+    //{
+    //    public bool success { get; set; }
+    //    public string errormessage { get; set; }
+    //    public int errorcode { get; set; }
+    //    public string uidoperazione { get; set; }
+    //    public int pagecount { get; set; }
+
+    //    //[JsonConverter(typeof(InfoToStringConverter))]
+    //    public objLoggedIn obj;
+
+    //    public int versioneprogramma { get; set; }
+    //    public int sottoversioneprogramma { get; set; }
+    //}
+    public class objLoggedIn
+    {
+        public string token { get; set; }
+        public string username { get; set; }
+        public string dataorascadenzatoken { get; set; }
+    }
+
+}
